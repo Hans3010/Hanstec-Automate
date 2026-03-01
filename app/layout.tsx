@@ -50,7 +50,7 @@ export const metadata: Metadata = {
       "Automatizamos tu WhatsApp, Instagram y Facebook. Servicios de automatización para negocios en Santa Cruz de la Sierra, Bolivia.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: "HansTec Automate — Automatización para negocios",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     title: "HansTec Automate — Tu negocio respondiendo 24/7 sin vos",
     description:
       "Automatizamos tu WhatsApp, Instagram y Facebook para negocios en Santa Cruz, Bolivia.",
-    images: ["/og-image.png"],
+    images: ["/og-image.svg"],
   },
   robots: {
     index: true,
@@ -92,6 +92,47 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('hanstec-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();`,
+          }}
+        />
+        {/* LocalBusiness JSON-LD — SEO local Santa Cruz */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              name: "HansTec Automate",
+              description:
+                "Automatización de WhatsApp, Instagram y Facebook para pequeños y medianos negocios en Santa Cruz de la Sierra, Bolivia.",
+              url: "https://hanstec.vercel.app",
+              telephone: "+59178723836",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Santa Cruz de la Sierra",
+                addressRegion: "Santa Cruz",
+                addressCountry: "BO",
+              },
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: -17.7863,
+                longitude: -63.1812,
+              },
+              areaServed: { "@type": "City", name: "Santa Cruz de la Sierra" },
+              serviceType: [
+                "Automatización de WhatsApp",
+                "Chatbot para negocios",
+                "Agendamiento automático",
+                "Captura de leads",
+              ],
+              priceRange: "Bs 700 – Bs 2.200",
+              openingHoursSpecification: {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+                opens: "09:00",
+                closes: "18:00",
+              },
+              sameAs: ["https://wa.me/59178723836"],
+            }),
           }}
         />
       </head>

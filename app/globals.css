@@ -127,6 +127,50 @@ select {
 }
 
 /* ============================================
+   Scroll-reveal animations (CSS-only, no JS lib)
+   Used in Problems, Solutions, HowItWorks, Pricing
+   Apply [data-visible="true"] via IntersectionObserver
+   ============================================ */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Section header / wrapper reveal */
+.reveal {
+  opacity: 0;
+}
+
+.reveal[data-visible="true"] {
+  animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Staggered card children */
+.reveal-stagger > * {
+  opacity: 0;
+}
+
+.reveal-stagger[data-visible="true"] > *:nth-child(1) {
+  animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0s forwards;
+}
+.reveal-stagger[data-visible="true"] > *:nth-child(2) {
+  animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.12s forwards;
+}
+.reveal-stagger[data-visible="true"] > *:nth-child(3) {
+  animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.24s forwards;
+}
+.reveal-stagger[data-visible="true"] > *:nth-child(4) {
+  animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.36s forwards;
+}
+
+/* ============================================
    Shimmer effect (CTA buttons)
    ============================================ */
 @keyframes shimmer {

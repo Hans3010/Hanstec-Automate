@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useEffect } from "react";
 import { MessageCircleX, CalendarX, BarChart2, ArrowRight, type LucideIcon } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { PROBLEMS } from "@/lib/constants";
@@ -16,26 +15,15 @@ function ProblemCard({
   icon,
   title,
   description,
-  index,
-  inView,
 }: {
   icon: string;
   title: string;
   description: string;
-  index: number;
-  inView: boolean;
 }) {
   const Icon = ICON_MAP[icon];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
-      transition={{
-        duration: 0.5,
-        delay: index * 0.12,
-        ease: [0.22, 1, 0.36, 1],
-      }}
+    <div
       className="group relative flex flex-col gap-4 p-6 rounded-sm transition-transform duration-300 hover:-translate-y-1"
       style={{
         backgroundColor: "var(--bg-3)",
@@ -81,13 +69,32 @@ function ProblemCard({
       >
         {description}
       </p>
-    </motion.div>
+    </div>
   );
 }
 
 export function Problems() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const headerRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const targets = [headerRef.current, gridRef.current, ctaRef.current].filter(Boolean) as HTMLElement[];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).dataset.visible = "true";
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "-80px" }
+    );
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
@@ -97,38 +104,27 @@ export function Problems() {
       style={{ backgroundColor: "var(--bg-2)" }}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div ref={headerRef} className="reveal">
           <SectionHeader
             label=""
             heading="¿TE SUENA FAMILIAR?"
             subtitle="Si manejás un negocio en Santa Cruz, es probable que esto te esté pasando ahora mismo."
           />
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {PROBLEMS.map((problem, i) => (
+        <div ref={gridRef} className="reveal-stagger grid grid-cols-1 md:grid-cols-3 gap-5">
+          {PROBLEMS.map((problem) => (
             <ProblemCard
               key={problem.id}
               icon={problem.icon}
               title={problem.title}
               description={problem.description}
-              index={i}
-              inView={inView}
             />
           ))}
         </div>
 
         {/* CTA nudge */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-10 text-center"
-        >
+        <div ref={ctaRef} className="reveal mt-10 text-center" style={{ animationDelay: "0.4s" }}>
           <a
             href="#soluciones"
             className="inline-flex items-center gap-2 text-sm font-semibold transition-colors duration-200"
@@ -146,7 +142,7 @@ export function Problems() {
             Ver cómo lo resolvemos
             <ArrowRight size={15} strokeWidth={2.5} />
           </a>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
