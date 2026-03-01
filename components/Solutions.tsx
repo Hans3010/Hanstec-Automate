@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useEffect } from "react";
 import { MessageCircle, CalendarCheck, Users, ArrowRight, type LucideIcon } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { SERVICES } from "@/lib/constants";
@@ -18,28 +17,17 @@ function ServiceCard({
   description,
   price,
   currency,
-  index,
-  inView,
 }: {
   icon: string;
   name: string;
   description: string;
   price: number;
   currency: string;
-  index: number;
-  inView: boolean;
 }) {
   const Icon = ICON_MAP[icon];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
-      transition={{
-        duration: 0.5,
-        delay: index * 0.12,
-        ease: [0.22, 1, 0.36, 1],
-      }}
+    <div
       className="group relative flex flex-col gap-5 p-6 rounded-sm transition-all duration-300 hover:-translate-y-1"
       style={{
         backgroundColor: "var(--bg-3)",
@@ -103,27 +91,40 @@ function ServiceCard({
       >
         {description}
       </p>
-    </motion.div>
+    </div>
   );
 }
 
 export function Solutions() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const headerRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const targets = [headerRef.current, gridRef.current, ctaRef.current].filter(Boolean) as HTMLElement[];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).dataset.visible = "true";
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "-80px" }
+    );
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
       id="soluciones"
-      ref={ref}
       className="py-20 md:py-28"
       style={{ backgroundColor: "var(--bg)" }}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div ref={headerRef} className="reveal">
           <SectionHeader
             label=""
             heading={
@@ -135,10 +136,10 @@ export function Solutions() {
             }
             subtitle="Tres servicios que transforman cómo tu negocio se comunica con los clientes."
           />
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {SERVICES.map((service, i) => (
+        <div ref={gridRef} className="reveal-stagger grid grid-cols-1 md:grid-cols-3 gap-5">
+          {SERVICES.map((service) => (
             <ServiceCard
               key={service.id}
               icon={service.icon}
@@ -146,19 +147,12 @@ export function Solutions() {
               description={service.description}
               price={service.price}
               currency={service.currency}
-              index={i}
-              inView={inView}
             />
           ))}
         </div>
 
         {/* CTA nudge */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-10 text-center"
-        >
+        <div ref={ctaRef} className="reveal mt-10 text-center" style={{ animationDelay: "0.4s" }}>
           <a
             href="#precios"
             className="btn-shimmer inline-flex items-center gap-2 px-6 py-3 text-base font-semibold rounded-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--red)]"
@@ -179,7 +173,7 @@ export function Solutions() {
             Ver planes y precios
             <ArrowRight size={15} strokeWidth={2.5} />
           </a>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

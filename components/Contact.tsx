@@ -2,15 +2,24 @@
 
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { MessageCircle, CheckCircle2, MapPin, Clock, Shield } from "lucide-react";
+import { Mail, CheckCircle2, MapPin, Clock, Shield, MessageCircle, Loader2 } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { BUSINESS_TYPES, WHATSAPP_URL, WHATSAPP_NUMBER } from "@/lib/constants";
+
+// ─── Formspree endpoint ────────────────────────────────────────────────────
+// 1. Creá una cuenta gratis en https://formspree.io
+// 2. Creá un nuevo form y copiá el endpoint (ej. https://formspree.io/f/xabcdefg)
+// 3. Reemplazá el valor de FORMSPREE_ENDPOINT con tu URL
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xzdaqyey";
+// ──────────────────────────────────────────────────────────────────────────
 
 const TRUST_ITEMS = [
   { icon: MapPin, text: "Santa Cruz de la Sierra, Bolivia" },
   { icon: Clock, text: "Respuesta en menos de 24 horas" },
   { icon: Shield, text: "Sin contratos largos ni letra chica" },
 ];
+
+type FormState = "idle" | "loading" | "success" | "error";
 
 export function Contact() {
   const ref = useRef<HTMLDivElement>(null);
@@ -22,7 +31,7 @@ export function Contact() {
     whatsapp: "",
     message: "",
   });
-  const [submitted, setSubmitted] = useState(false);
+  const [formState, setFormState] = useState<FormState>("idle");
 
   function handleChange(
     e: React.ChangeEvent<
@@ -32,13 +41,30 @@ export function Contact() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const text = encodeURIComponent(
-      `Hola! Me contacto desde la web.\n\nNombre: ${formData.name}\nTipo de negocio: ${formData.businessType}\nWhatsApp: ${formData.whatsapp}\n\nMensaje: ${formData.message}`
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, "_blank");
-    setSubmitted(true);
+    setFormState("loading");
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          "tipo-de-negocio": formData.businessType,
+          whatsapp: formData.whatsapp,
+          message: formData.message,
+        }),
+      });
+
+      if (res.ok) {
+        setFormState("success");
+      } else {
+        setFormState("error");
+      }
+    } catch {
+      setFormState("error");
+    }
   }
 
   const inputStyle: React.CSSProperties = {
@@ -86,40 +112,98 @@ export function Contact() {
             animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
-            {submitted ? (
+            {formState === "success" ? (
               <div
-                className="flex flex-col items-center justify-center gap-4 py-16 rounded-sm text-center"
+                className="flex flex-col items-center gap-5 py-10 px-6 rounded-sm text-center"
                 style={{
                   backgroundColor: "var(--bg-3)",
                   border: "1px solid var(--border)",
                 }}
               >
                 <CheckCircle2
-                  size={48}
+                  size={44}
                   strokeWidth={1.5}
                   style={{ color: "var(--red)" }}
                 />
-                <h3
-                  className="text-3xl"
+                <div className="flex flex-col gap-2">
+                  <h3
+                    className="text-3xl"
+                    style={{
+                      fontFamily: "var(--font-bebas), sans-serif",
+                      color: "var(--text)",
+                    }}
+                  >
+                    ¡MENSAJE ENVIADO!
+                  </h3>
+                  <p
+                    className="text-sm max-w-xs"
+                    style={{
+                      fontFamily: "var(--font-rajdhani), sans-serif",
+                      color: "var(--text-mid)",
+                    }}
+                  >
+                    Recibimos tu consulta. Te respondemos por WhatsApp en menos de 24 horas.
+                  </p>
+                </div>
+
+                {/* Demo nudge */}
+                <div
+                  className="w-full rounded-sm p-4 flex flex-col gap-2"
                   style={{
-                    fontFamily: "var(--font-bebas), sans-serif",
-                    color: "var(--text)",
+                    backgroundColor: "var(--bg-2)",
+                    border: "1px solid var(--border)",
                   }}
                 >
-                  ¡MENSAJE ENVIADO!
-                </h3>
-                <p
-                  className="text-sm max-w-xs"
-                  style={{
-                    fontFamily: "var(--font-rajdhani), sans-serif",
-                    color: "var(--text-mid)",
-                  }}
-                >
-                  Abrimos WhatsApp con tu mensaje pre-listo. Solo revisá y enviá — respondemos en menos de 24 horas.
-                </p>
+                  <p
+                    className="text-xs tracking-widest uppercase"
+                    style={{
+                      fontFamily: "var(--font-space-mono), monospace",
+                      color: "var(--text-dim)",
+                    }}
+                  >
+                    Mientras esperás
+                  </p>
+                  <p
+                    className="text-sm leading-snug"
+                    style={{
+                      fontFamily: "var(--font-rajdhani), sans-serif",
+                      color: "var(--text-mid)",
+                    }}
+                  >
+                    Escribinos{" "}
+                    <span style={{ color: "var(--text)", fontWeight: 600 }}>
+                      "DEMO"
+                    </span>{" "}
+                    por WhatsApp y te mostramos el sistema funcionando en vivo.
+                  </p>
+                  <a
+                    href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("DEMO")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 py-2 rounded-sm text-sm font-semibold mt-1 transition-colors duration-200"
+                    style={{
+                      fontFamily: "var(--font-rajdhani), sans-serif",
+                      backgroundColor: "#25D366",
+                      color: "#fff",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.currentTarget as HTMLElement).style.backgroundColor = "#1da851")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.currentTarget as HTMLElement).style.backgroundColor = "#25D366")
+                    }
+                  >
+                    <MessageCircle size={14} strokeWidth={2} />
+                    Ver demo en vivo
+                  </a>
+                </div>
+
                 <button
-                  onClick={() => setSubmitted(false)}
-                  className="mt-2 text-xs underline underline-offset-4"
+                  onClick={() => {
+                    setFormState("idle");
+                    setFormData({ name: "", businessType: "", whatsapp: "", message: "" });
+                  }}
+                  className="text-xs underline underline-offset-4"
                   style={{
                     fontFamily: "var(--font-space-mono), monospace",
                     color: "var(--text-dim)",
@@ -154,16 +238,12 @@ export function Contact() {
                     name="name"
                     type="text"
                     required
-                    placeholder="Juan Mamani"
+                    placeholder="Luis Copa"
                     value={formData.name}
                     onChange={handleChange}
                     style={inputStyle}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--red)")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--border)")
-                    }
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--red)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
                   />
                 </div>
 
@@ -186,12 +266,8 @@ export function Contact() {
                     value={formData.businessType}
                     onChange={handleChange}
                     style={inputStyle}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--red)")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--border)")
-                    }
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--red)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
                   >
                     <option value="" disabled>
                       Seleccioná tu rubro
@@ -221,16 +297,12 @@ export function Contact() {
                     name="whatsapp"
                     type="tel"
                     required
-                    placeholder="591 7X XXX XXX"
+                    placeholder="78723836"
                     value={formData.whatsapp}
                     onChange={handleChange}
                     style={inputStyle}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--red)")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--border)")
-                    }
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--red)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
                   />
                 </div>
 
@@ -254,34 +326,52 @@ export function Contact() {
                     value={formData.message}
                     onChange={handleChange}
                     style={{ ...inputStyle, resize: "none" }}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--red)")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--border)")
-                    }
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--red)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
                   />
                 </div>
 
+                {/* Error message */}
+                {formState === "error" && (
+                  <p
+                    className="text-xs"
+                    style={{
+                      fontFamily: "var(--font-space-mono), monospace",
+                      color: "var(--red-bright)",
+                    }}
+                  >
+                    Hubo un error al enviar. Intentá de nuevo o escribinos por WhatsApp.
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className="btn-shimmer mt-1 inline-flex items-center justify-center gap-2 py-3 text-base font-semibold rounded-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--red)]"
+                  disabled={formState === "loading"}
+                  className="btn-shimmer mt-1 inline-flex items-center justify-center gap-2 py-3 text-base font-semibold rounded-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--red)] disabled:opacity-60 disabled:cursor-not-allowed"
                   style={{
                     fontFamily: "var(--font-rajdhani), sans-serif",
                     backgroundColor: "var(--red)",
                     color: "#fff",
                   }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.backgroundColor =
-                      "var(--red-bright)")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.backgroundColor =
-                      "var(--red)")
-                  }
+                  onMouseEnter={(e) => {
+                    if (formState !== "loading")
+                      (e.currentTarget as HTMLElement).style.backgroundColor = "var(--red-bright)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = "var(--red)";
+                  }}
                 >
-                  <MessageCircle size={16} strokeWidth={2} />
-                  Continuar en WhatsApp
+                  {formState === "loading" ? (
+                    <>
+                      <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Mail size={16} strokeWidth={2} />
+                      Enviar consulta
+                    </>
+                  )}
                 </button>
               </form>
             )}
@@ -309,7 +399,7 @@ export function Contact() {
                   color: "var(--text-mid)",
                 }}
               >
-                Preferís escribir directo?
+                Preferís hablar directo?
               </p>
               <h3
                 className="text-2xl leading-tight"
@@ -318,7 +408,7 @@ export function Contact() {
                   color: "var(--text)",
                 }}
               >
-                MANDANOS UN MENSAJE AHORA
+                ESCRIBINOS POR WHATSAPP
               </h3>
               <p
                 className="text-sm leading-relaxed"
@@ -327,7 +417,7 @@ export function Contact() {
                   color: "var(--text-mid)",
                 }}
               >
-                Si preferís hablar directo, estamos en WhatsApp. Sin formularios, sin esperas.
+                Sin formularios, sin esperas. Respondemos en menos de 24 horas.
               </p>
               <a
                 href={WHATSAPP_URL}
@@ -340,12 +430,10 @@ export function Contact() {
                   color: "#fff",
                 }}
                 onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLElement).style.backgroundColor =
-                    "#1da851")
+                  ((e.currentTarget as HTMLElement).style.backgroundColor = "#1da851")
                 }
                 onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLElement).style.backgroundColor =
-                    "#25D366")
+                  ((e.currentTarget as HTMLElement).style.backgroundColor = "#25D366")
                 }
               >
                 <MessageCircle size={16} strokeWidth={2} />

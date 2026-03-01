@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useEffect } from "react";
 import {
   Video,
   Settings,
@@ -20,22 +19,35 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 export function HowItWorks() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const headerRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const targets = [headerRef.current, gridRef.current, ctaRef.current].filter(Boolean) as HTMLElement[];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).dataset.visible = "true";
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "-80px" }
+    );
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
       id="como-funciona"
-      ref={ref}
       className="py-20 md:py-28"
       style={{ backgroundColor: "var(--bg)" }}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div ref={headerRef} className="reveal">
           <SectionHeader
             label=""
             heading={
@@ -47,7 +59,7 @@ export function HowItWorks() {
             }
             subtitle="Sin tecnicismos. Sin complicaciones. Vos nos contás, nosotros nos encargamos de todo."
           />
-        </motion.div>
+        </div>
 
         {/* Timeline */}
         <div className="relative">
@@ -62,27 +74,16 @@ export function HowItWorks() {
             }}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">
+          <div ref={gridRef} className="reveal-stagger grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">
             {HOW_IT_WORKS_STEPS.map((step, i) => {
               const Icon = ICON_MAP[step.icon];
               return (
-                <motion.div
+                <div
                   key={step.id}
-                  initial={{ opacity: 0, y: 32 }}
-                  animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: i * 0.13,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
                   className="relative flex flex-col items-center text-center gap-4"
                 >
                   {/* Step circle */}
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.2 }}
-                    className="relative z-10 flex flex-col items-center"
-                  >
+                  <div className="relative z-10 flex flex-col items-center">
                     {/* Step number badge */}
                     <span
                       className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold z-10"
@@ -97,7 +98,7 @@ export function HowItWorks() {
                     </span>
 
                     <div
-                      className="w-20 h-20 rounded-sm flex items-center justify-center transition-all duration-300"
+                      className="w-20 h-20 rounded-sm flex items-center justify-center transition-all duration-300 hover:scale-110"
                       style={{
                         backgroundColor: "var(--bg-3)",
                         border: "2px solid var(--border)",
@@ -116,7 +117,7 @@ export function HowItWorks() {
                     >
                       {Icon && <Icon size={32} strokeWidth={1.5} />}
                     </div>
-                  </motion.div>
+                  </div>
 
                   {/* Content */}
                   <div className="flex flex-col gap-2">
@@ -148,19 +149,14 @@ export function HowItWorks() {
                       style={{ backgroundColor: "var(--border)" }}
                     />
                   )}
-                </motion.div>
+                </div>
               );
             })}
           </div>
         </div>
 
         {/* Bottom CTA nudge */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          transition={{ duration: 0.5, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-14 text-center"
-        >
+        <div ref={ctaRef} className="reveal mt-14 text-center" style={{ animationDelay: "0.5s" }}>
           <a
             href="#contacto"
             className="btn-shimmer inline-flex items-center gap-2 px-6 py-3 text-base font-semibold rounded-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--red)]"
@@ -189,7 +185,7 @@ export function HowItWorks() {
           >
             Demo de 3 días sin comprometerte
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0A0A0A"/>
+
+  <!-- Subtle grid pattern -->
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(230,57,70,0.08)" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="rgba(230,57,70,0.12)"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Red accent line left -->
+  <rect x="0" y="0" width="6" height="630" fill="#E63946"/>
+
+  <!-- HansTec icon (H) — scaled up, positioned left -->
+  <g transform="translate(80, 200) scale(2.8)">
+    <rect x="8" y="8" width="14" height="64" fill="#F5F5F5"/>
+    <rect x="58" y="8" width="14" height="64" fill="#F5F5F5"/>
+    <polygon points="22,33 58,33 58,47 22,47" fill="#E63946"/>
+    <polygon points="22,33 44,33 58,44 58,47 36,47 22,36" fill="#FF4757"/>
+  </g>
+
+  <!-- Brand name -->
+  <text x="310" y="260" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="64" letter-spacing="4" fill="#F5F5F5">HANSTEC AUTOMATE</text>
+
+  <!-- Tagline -->
+  <text x="312" y="320" font-family="Arial, sans-serif" font-size="28" fill="#999999">Automatización para negocios · Santa Cruz, Bolivia</text>
+
+  <!-- Main headline -->
+  <text x="312" y="420" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="52" fill="#F5F5F5">TU NEGOCIO RESPONDIENDO</text>
+  <text x="312" y="482" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="52" fill="#E63946">24/7 SIN VOS</text>
+
+  <!-- Bottom strip -->
+  <rect x="0" y="580" width="1200" height="50" fill="#111111"/>
+  <text x="312" y="612" font-family="Arial, sans-serif" font-size="20" fill="#555555">WhatsApp · Instagram · Facebook · Desde 700 Bs</text>
+
+  <!-- Stats badges -->
+  <rect x="940" y="380" width="200" height="72" rx="4" fill="#1A1A1A" stroke="#2A2A2A" stroke-width="1"/>
+  <text x="980" y="412" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="32" fill="#F5F5F5">&lt;30s</text>
+  <text x="980" y="436" font-family="Arial, sans-serif" font-size="14" fill="#999999">respuesta</text>
+
+  <rect x="940" y="466" width="200" height="72" rx="4" fill="#1A1A1A" stroke="#2A2A2A" stroke-width="1"/>
+  <text x="980" y="498" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="32" fill="#F5F5F5">0</text>
+  <text x="980" y="522" font-family="Arial, sans-serif" font-size="14" fill="#999999">leads perdidos</text>
+</svg>
